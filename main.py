@@ -37,7 +37,7 @@ async def loop_voice():
     # Fresh TwiML for every subsequent turn
     twiml = f"""
 <Response>
-  <Play>{PUBLIC_URL}/tts_audio/hold-music.mp3</Play>
+  <Play>{PUBLIC_URL}/tts_audio/loop.wav</Play>
   <Record action="/process-recording" method="POST" maxLength="30" playBeep="true"/>
 </Response>
 """
@@ -55,7 +55,7 @@ async def process_recording(request: Request):
     # Immediately return a short hold so the call stays alive
     hold = f"""
 <Response>
-  <Play loop="0">{PUBLIC_URL}/tts_audio/hold-music.mp3</Play>
+  <Play loop="0">{PUBLIC_URL}/tts_audio/hold-music.wav</Play>
 </Response>
 """
     return Response(hold, media_type="application/xml")

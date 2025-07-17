@@ -24,12 +24,12 @@ def generate_tts(text: str) -> str:
 
     
     if response.status_code == 200:
-        with open("static/tts_audio/hold-music.mp3", "wb") as f:
+        with open("static/tts_audio/loop.wav", "wb") as f:
             f.write(response.content)
-        print("✅ MP3 saved to static/hold-music.mp3")
+        print("✅ MP3 saved to static/loop.wav")
     else:
         print("❌ Failed to generate TTS:", response.status_code, response.text)
 
 
-TEXT = "Танд өөр асуух зүйл байна уу?"
+TEXT = "Танд өөр асуулт байна уу?"
 generate_tts(TEXT)
