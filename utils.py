@@ -22,8 +22,8 @@ from aiohttp import BasicAuth
 RETRY_COUNT = 5
 RETRY_WAIT_SECONDS = 2
 MIN_VALID_FILE_SIZE = 6000  # 6KB
-POLL_INTERVAL = 1    # seconds between polls
-POLL_TIMEOUT  = 60   # max seconds to wait
+POLL_TIMEOUT = 15  # seconds
+POLL_INTERVAL = 1  # seconds
 
 async def download_audio(recording_url: str) -> str:
     # Prepare Twilio URL for the .wav version
@@ -93,12 +93,15 @@ async def transcribe_audio(audio_path: str) -> str:
 
     # Step 2: Poll until transcription is done (or timeout)
     start = time.time()
+    attempt = 1
+
     while True:
         elapsed = time.time() - start
         if elapsed > POLL_TIMEOUT:
             raise TimeoutError(f"❌ STT-long timeout after {POLL_TIMEOUT}s")
 
-        logging.info(f"🔁 Polling Chimege for transcription (elapsed {int(elapsed)}s)...")
+        logging.info(f"🔁 Polling Chimege (attempt {attempt}, elapsed {elapsed:.1f}s)...")
+
         poll_resp = requests.get(
             "https://api.chimege.com/v1.2/stt-long-transcript",
             headers={
@@ -106,32 +109,28 @@ async def transcribe_audio(audio_path: str) -> str:
                 "UUID": uuid_
             }
         )
+
         if poll_resp.status_code != 200:
             raise Exception(f"❌ STT-long polling failed: {poll_resp.status_code} - {poll_resp.text}")
 
         data = poll_resp.json()
         logging.debug(f"📥 Full transcription response: {data}")
 
-        # Handle dict format { done: bool, transcription: str, ... }
-        if isinstance(data, dict):
-            if data.get("done"):
-                transcript = data.get("transcription", "").strip()
-                logging.info(f"✅ Final transcript: {transcript}")
-                return transcript
-            # else done==False → wait and retry
+        if isinstance(data, dict) and data.get("done"):
+            transcript = data.get("transcription", "").strip()
+            logging.info(f"✅ Final transcript: {transcript}")
+            return transcript
 
-        # Handle list format [ { done: bool, transcription: str, ... }, ... ]
         elif isinstance(data, list) and data:
             first = data[0]
             if first.get("done"):
                 transcript = first.get("transcription", "").strip()
                 logging.info(f"✅ Final transcript: {transcript}")
                 return transcript
-            # else done==False → wait and retry
 
-        # Not ready yet
         logging.info("⌛ Transcript not ready yet, retrying...")
-        time.sleep(POLL_INTERVAL)
+        await asyncio.sleep(POLL_INTERVAL)
+        attempt += 1
 
 # 3. Generate GPT Response
 async def generate_response(user_message):

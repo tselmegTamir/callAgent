@@ -19,7 +19,7 @@ app.mount("/tts_audio", StaticFiles(directory="static/tts_audio"), name="tts_aud
 
 TWILIO_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 TWILIO_CLIENT = Client(os.getenv("TWILIO_ACCOUNT_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
-PUBLIC_URL = "https://b7a5bf2e1b58.ngrok-free.app"
+PUBLIC_URL = "https://805ae74452fa.ngrok-free.app"  
 
 @app.post("/voice")
 async def initial_voice():
@@ -65,7 +65,7 @@ async def process_recording(request: Request):
 async def call_user():
     call = TWILIO_CLIENT.calls.create(
         url=f"{PUBLIC_URL}/voice",
-        to="+97699183455",
+        to="+97694970947",
         from_=TWILIO_NUMBER
     )
     return {"message": "Call initiated", "call_sid": call.sid}
