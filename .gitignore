@@ -1,0 +1,33 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+test/.env
+.env
+.env/
+.env.bak/
+.venv/
+env/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Audio files (don't track large binary media)
+*.wav
+*.pcm
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Jupyter Notebook checkpoints (if using notebooks)
+.ipynb_checkpoints/
+
+# VSCode settings (optional)
+.vscode/
